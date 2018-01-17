@@ -5,6 +5,25 @@ var oldInit = jQuery.fn.init,
 	rattrHashTest = /\[(\s*[-\w]+\s*)([~|^$*]?=)\s*([-\w#]*?#[-\w#]*)\s*\]/,
 	rattrHashGlob = /\[(\s*[-\w]+\s*)([~|^$*]?=)\s*([-\w#]*?#[-\w#]*)\s*\]/g;
 
+// Add the property "selector" to a jQuery object
+function addSelector( ret, selector ) {
+	Object.defineProperty( ret, "selector", {
+		enumerable: true,
+		configurable: true,
+		get: function() {
+			migrateWarn( "Property \"selector\" is deprecated and removed: " + selector );
+			return selector;
+		},
+		set: function( value ) {
+			migrateWarn( "Property \"selector\" is deprecated and removed: " + selector +
+				" -> " + value );
+			selector = value;
+		}
+	} );
+
+	return ret;
+}
+
 jQuery.fn.init = function( arg1 ) {
 	var args = Array.prototype.slice.call( arguments );
 
@@ -15,7 +34,14 @@ jQuery.fn.init = function( arg1 ) {
 		args[ 0 ] = [];
 	}
 
-	return oldInit.apply( this, args );
+	var ret = oldInit.apply( this, args );
+
+	// Make the "selector" property accessible
+	if ( typeof arg1 === "string" ) {
+		addSelector( ret, arg1 );
+	}
+
+	return ret;
 };
 jQuery.fn.init.prototype = jQuery.fn;
 
@@ -49,7 +75,12 @@ jQuery.find = function( selector ) {
 		}
 	}
 
-	return oldFind.apply( this, args );
+	var ret = oldFind.apply( this, args );
+
+	// Make the "selector" property accessible
+	addSelector( ret, this.selector ? this.selector + " " + selector : selector );
+
+	return ret;
 };
 
 // Copy properties attached to original jQuery.find method (e.g. .attr, .isXML)

@@ -275,6 +275,38 @@ QUnit.test( "jQuery.expr.pseudos aliases", function( assert ) {
 
 } );
 
+QUnit.test( "jQuery object contains the selector property", function( assert ) {
+	assert.expect( 4 );
+
+	var $el = jQuery( "#qunit-fixture" );
+
+	expectWarning( assert, "jQuery object contains the selector property", 1, function() {
+		assert.equal( $el.selector, "#qunit-fixture", "selector property getter" );
+	} );
+
+	expectWarning( assert, "jQuery object contains a writable selector property", 2, function() {
+		$el.selector = "#other";
+		assert.equal( $el.selector, "#other", "selector property setter" );
+	} );
+
+} );
+
+QUnit.test( "jQuery.find maintains the selector property", function( assert ) {
+	assert.expect( 4 );
+
+	var $el = jQuery(document.body).find( "#qunit-fixture" );
+
+	expectWarning( assert, "jQuery.find sets the selector property", 1, function() {
+		assert.equal( $el.selector, "#qunit-fixture", "selector property getter" );
+	} );
+
+	expectWarning( assert, "jQuery.find sets a writable selector property", 2, function() {
+		$el.selector = "#other";
+		assert.equal( $el.selector, "#other", "selector property setter" );
+	} );
+
+} );
+
 QUnit.test( "jQuery.holdReady (warn only)", function( assert ) {
 	assert.expect( 1 );
 
